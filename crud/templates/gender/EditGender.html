@@ -1,0 +1,297 @@
+{% extends "layout/base.html" %}
+
+{% block 'title' %} Edit Gender Page{% endblock 'title' %}
+
+{% block 'content' %}
+{% include 'include/Sidebar.html' %}
+{% include 'include/ToastMessage.html' %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --ink: #0e0e0e;
+    --paper: #f5f1eb;
+    --accent: #2b5bc8; /* Professional Blue for Edit */
+    --accent-dark: #1e3f8a;
+    --muted: #9a9087;
+    --border: #d9d3c8;
+    --card-bg: #ffffff;
+  }
+
+  .edit-root {
+    height: calc(100vh - 3.5rem);
+    overflow: hidden;
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(circle at 15% 85%, rgba(43, 91, 200, 0.07) 0%, transparent 55%),
+      radial-gradient(circle at 85% 10%, rgba(14,14,14,0.05) 0%, transparent 50%);
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* ── Left image panel ── */
+  .edit-panel-left {
+    display: none;
+    width: 42%;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  @media (min-width: 900px) { .edit-panel-left { display: block; } }
+
+  .edit-panel-left img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    filter: grayscale(10%) contrast(105%);
+  }
+
+  .edit-panel-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(14,14,14,0.65) 0%, rgba(43, 91, 200, 0.25) 100%);
+  }
+
+  .edit-panel-content {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 3rem;
+  }
+
+  .panel-accent-line {
+    position: absolute; top: 0; left: 3rem;
+    width: 1px; height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--accent) 30%, var(--accent) 70%, transparent);
+    opacity: 0.4;
+  }
+
+  .panel-edit-icon {
+    width: 3rem; height: 3rem;
+    border-radius: 50%;
+    background: rgba(43, 91, 200, 0.2);
+    border: 1.5px solid rgba(43, 91, 200, 0.5);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.2rem;
+    color: var(--accent);
+  }
+
+  .panel-quote-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; line-height: 1.5;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 1.5rem;
+  }
+
+  .panel-divider {
+    width: 2.5rem; height: 2px;
+    background: var(--accent); margin-bottom: 1rem;
+  }
+
+  .panel-brand {
+    font-size: 0.75rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4);
+  }
+
+  /* ── Right form panel ── */
+  .edit-panel-right {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+  }
+
+  .edit-card {
+    width: 100%;
+    max-width: 420px;
+    animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .edit-wordmark {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 2rem;
+  }
+  .edit-wordmark-dot {
+    width: 10px; height: 10px;
+    background: var(--accent); border-radius: 50%;
+  }
+  .edit-wordmark-text {
+    font-size: 0.7rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--muted); font-weight: 500;
+  }
+
+  .edit-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem; font-weight: 700;
+    color: var(--ink); line-height: 1.15;
+    margin-bottom: 0.4rem;
+  }
+
+  .edit-subtitle {
+    font-size: 0.9rem; color: var(--muted);
+    font-weight: 300; margin-bottom: 2.5rem;
+  }
+
+  /* Form */
+  .edit-form { display: flex; flex-direction: column; gap: 1.8rem; }
+
+  .field-group { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .field-label {
+    font-size: 0.72rem; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
+  }
+
+  .field-input {
+    width: 100%;
+    padding: 0.9rem 1.1rem;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem; color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  .field-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(43, 91, 200, 0.1);
+  }
+
+  /* Action row */
+  .action-row {
+    display: flex; gap: 0.75rem; margin-top: 0.5rem;
+  }
+
+  .btn-back {
+    flex: 1;
+    padding: 0.9rem 1rem;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 500;
+    text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-back:hover { border-color: var(--ink); background: rgba(14,14,14,0.04); }
+
+  .btn-save {
+    flex: 1.5;
+    padding: 0.9rem 1rem;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 500;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+
+  .btn-save::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 0; background: var(--accent-dark);
+    transition: width 0.3s cubic-bezier(0.22,1,0.36,1); z-index: 0;
+  }
+  .btn-save:hover::before { width: 100%; }
+  .btn-save span { position: relative; z-index: 1; }
+  .btn-save:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(43, 91, 200, 0.25); }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.8rem; color: var(--muted);
+    text-decoration: none; margin-bottom: 2rem;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: var(--accent); }
+</style>
+
+<div class="sm:ml-64 mt-16 md:mt-14">
+  <div class="edit-root">
+
+    <!-- Left image panel -->
+    <aside class="edit-panel-left">
+      <img src="https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?q=80&w=2067&auto=format&fit=crop" alt="Abstract Office">
+      <div class="edit-panel-overlay"></div>
+      <div class="edit-panel-content">
+        <div class="panel-accent-line"></div>
+        <div class="panel-edit-icon">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <p class="panel-quote-text">Refining data ensures the integrity of your entire system.</p>
+        <div class="panel-divider"></div>
+        <span class="panel-brand">Data Management &nbsp;·&nbsp; Gender Edit</span>
+      </div>
+    </aside>
+
+    <!-- Right form panel -->
+    <main class="edit-panel-right">
+      <div class="edit-card">
+
+        <a href="/gender/list" class="back-link">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          Back to list
+        </a>
+
+        <div class="edit-wordmark">
+          <div class="edit-wordmark-dot"></div>
+          <span class="edit-wordmark-text">Configuration</span>
+        </div>
+
+        <h1 class="edit-title">Edit Entry.</h1>
+        <p class="edit-subtitle">Modify the gender identification label below</p>
+
+        <form class="edit-form" action="/gender/edit/{{ gender.gender_id }}" method="post">
+          {% csrf_token %}
+
+          <div class="field-group">
+            <label class="field-label" for="gender">Gender Label</label>
+            <input 
+              class="field-input" 
+              type="text" 
+              name="gender" 
+              id="gender" 
+              value="{{ gender.gender }}"
+              placeholder="e.g. Non-binary"
+              required
+            >
+          </div>
+
+          <div class="action-row">
+            <a href="/gender/list" class="btn-back">
+              Cancel
+            </a>
+            <button type="submit" class="btn-save">
+              <span>
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right: 2px;">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </span>
+              <span>Save Changes</span>
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+{% endblock 'content' %}

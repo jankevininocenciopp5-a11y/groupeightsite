@@ -1,0 +1,116 @@
+<!-- Navigation -->
+<nav class="fixed top-0 z-50 w-full bg-white border-b border-[#d9d3c8]">
+  <div class="px-4 py-3 lg:px-6">
+    <div class="flex items-center justify-between">
+      
+      <!-- Brand / Logo -->
+      <div class="flex items-center justify-start gap-4">
+        <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" type="button" class="inline-flex items-center p-2 text-[#9a9087] rounded-lg sm:hidden hover:bg-[#f5f1eb]">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path></svg>
+        </button>
+        <a href="#" class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-[#c8472b] rounded-full flex items-center justify-center">
+            <span class="text-white font-bold text-xs">8</span>
+          </div>
+          <span class="self-center text-sm font-bold tracking-[0.2em] uppercase text-[#0e0e0e] whitespace-nowrap">
+            Group Eight Site
+          </span>
+        </a>
+      </div>
+
+      <!-- User Profile Dropdown -->
+      <div class="flex items-center">
+        <div class="flex items-center ms-3">
+          <button type="button" class="flex text-sm bg-[#f5f1eb] rounded-full border border-[#d9d3c8] p-0.5 focus:ring-4 focus:ring-[#f5f1eb]" data-dropdown-toggle="dropdown-user">
+            <img class="w-8 h-8 rounded-full grayscale-30" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo">
+          </button>
+          
+          <div class="z-50 hidden w-56 my-4 text-base list-none bg-white border border-[#d9d3c8] rounded-lg shadow-xl" id="dropdown-user">
+            <div class="px-4 py-4 text-center">
+              <p class="text-xs font-bold tracking-widest uppercase text-[#9a9087] mb-1">Authenticated</p>
+              <p class="text-sm font-medium text-[#0e0e0e]" style="font-family: 'Playfair Display', serif;">
+                {% if current_user %}{{ current_user.full_name }}{% endif %}
+              </p>
+            </div>
+            <ul class="py-1 border-t border-[#f5f1eb]" role="none">
+              <li>
+                <a href="/logout/" class="flex justify-center px-4 py-2 text-xs font-bold uppercase tracking-tighter text-[#c8472b] hover:bg-[#f5f1eb] transition-colors" role="menuitem">Sign out</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<!-- Sidebar -->
+<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-[#d9d3c8] sm:translate-x-0" aria-label="Sidebar">
+  <div class="h-full px-4 pb-4 overflow-y-auto bg-white">
+    
+    <div class="mt-4 mb-6 px-3">
+      <span class="text-[0.65rem] font-black uppercase tracking-[0.25em] text-[#9a9087]">Directory</span>
+    </div>
+
+    <ul class="space-y-1 font-sans">
+      <li>
+        <a href="/gender/list" class="menu-item flex items-center p-3 text-[#0e0e0e] text-sm font-medium rounded-md hover:bg-[#f5f1eb] transition-all group">
+          <span class="ms-1">Gender Records</span>
+        </a>
+      </li>
+      <li>
+        <a href="/gender/add" class="menu-item flex items-center p-3 text-[#0e0e0e] text-sm font-medium rounded-md hover:bg-[#f5f1eb] transition-all group">
+          <span class="ms-1">Register Gender</span>
+        </a>
+      </li>
+      
+      <div class="my-6 border-t border-[#f5f1eb] mx-3"></div>
+
+      <li>
+        <a href="/user/list" class="menu-item flex items-center p-3 text-[#0e0e0e] text-sm font-medium rounded-md hover:bg-[#f5f1eb] transition-all group">
+          <span class="ms-1">User Directory</span>
+        </a>
+      </li>
+      <li>
+        <a href="/user/add" class="menu-item flex items-center p-3 text-[#0e0e0e] text-sm font-medium rounded-md hover:bg-[#f5f1eb] transition-all group">
+          <span class="ms-1">Create Account</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</aside>
+
+<style>
+  /* Custom Active State to match your form design */
+  .menu-item.active {
+    background-color: #f5f1eb !important;
+    border-left: 3px solid #c8472b;
+    color: #0e0e0e;
+    font-weight: 700;
+  }
+  
+  .menu-item {
+    border-left: 3px solid transparent;
+    font-family: 'DM Sans', sans-serif;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuItems = document.querySelectorAll('.menu-item');
+    const currentPath = window.location.pathname;
+
+    menuItems.forEach(item => {
+      // Precise path matching
+      if (item.getAttribute('href') === currentPath) {
+        item.classList.add('active');
+      }
+
+      item.addEventListener('click', function() {
+        menuItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  });
+</script>

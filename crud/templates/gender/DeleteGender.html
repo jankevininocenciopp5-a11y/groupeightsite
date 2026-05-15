@@ -1,0 +1,323 @@
+{% extends "layout/base.html" %}
+
+{% block 'title' %} Delete Gender Page{% endblock 'title' %}
+
+{% block 'content' %}
+{% include 'include/Sidebar.html' %}
+{% include 'include/ToastMessage.html' %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --ink: #0e0e0e;
+    --paper: #f5f1eb;
+    --accent: #c8472b;
+    --accent-dark: #a33520;
+    --muted: #9a9087;
+    --border: #d9d3c8;
+    --card-bg: #ffffff;
+  }
+
+  .delete-root {
+    height: calc(100vh - 3.5rem);
+    overflow: hidden;
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(circle at 15% 85%, rgba(200,71,43,0.07) 0%, transparent 55%),
+      radial-gradient(circle at 85% 10%, rgba(14,14,14,0.05) 0%, transparent 50%);
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* ── Left image panel ── */
+  .delete-panel-left {
+    display: none;
+    width: 42%;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  @media (min-width: 900px) { .delete-panel-left { display: block; } }
+
+  .delete-panel-left img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    filter: grayscale(20%);
+  }
+
+  .delete-panel-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(14,14,14,0.65) 0%, rgba(200,71,43,0.25) 100%);
+  }
+
+  .delete-panel-content {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 3rem;
+  }
+
+  .panel-accent-line {
+    position: absolute; top: 0; left: 3rem;
+    width: 1px; height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--accent) 30%, var(--accent) 70%, transparent);
+    opacity: 0.4;
+  }
+
+  .panel-warn-icon {
+    width: 3rem; height: 3rem;
+    border-radius: 50%;
+    background: rgba(200,71,43,0.2);
+    border: 1.5px solid rgba(200,71,43,0.5);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.2rem;
+    color: var(--accent);
+  }
+
+  .panel-quote-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; line-height: 1.5;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 1.5rem;
+  }
+
+  .panel-divider {
+    width: 2.5rem; height: 2px;
+    background: var(--accent); margin-bottom: 1rem;
+  }
+
+  .panel-brand {
+    font-size: 0.75rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4);
+  }
+
+  /* ── Right form panel ── */
+  .delete-panel-right {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+  }
+
+  .delete-card {
+    width: 100%;
+    max-width: 420px;
+    animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Wordmark */
+  .delete-wordmark {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 2rem;
+  }
+  .delete-wordmark-dot {
+    width: 10px; height: 10px;
+    background: var(--accent); border-radius: 50%;
+  }
+  .delete-wordmark-text {
+    font-size: 0.7rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--muted); font-weight: 500;
+  }
+
+  .delete-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem; font-weight: 700;
+    color: var(--ink); line-height: 1.15;
+    margin-bottom: 0.4rem;
+  }
+
+  .delete-subtitle {
+    font-size: 0.9rem; color: var(--muted);
+    font-weight: 300; margin-bottom: 2rem;
+  }
+
+  /* Warning banner */
+  .delete-warning {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    background: rgba(200,71,43,0.06);
+    border: 1.5px solid rgba(200,71,43,0.2);
+    border-radius: 6px;
+    margin-bottom: 1.8rem;
+  }
+  .delete-warning-icon { color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+  .delete-warning-text {
+    font-size: 0.82rem; color: var(--accent); line-height: 1.5;
+  }
+
+  /* Form */
+  .delete-form { display: flex; flex-direction: column; gap: 1.4rem; }
+
+  .field-group { display: flex; flex-direction: column; gap: 0.45rem; }
+
+  .field-label {
+    font-size: 0.72rem; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
+  }
+
+  .field-input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: rgba(200,71,43,0.03);
+    border: 1.5px solid rgba(200,71,43,0.25);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem; color: var(--muted);
+    outline: none;
+    cursor: not-allowed;
+  }
+
+  /* Action row */
+  .action-row {
+    display: flex; gap: 0.75rem; margin-top: 0.4rem;
+  }
+
+  .btn-back {
+    flex: 1;
+    padding: 0.9rem 1rem;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 500;
+    text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-back:hover { border-color: var(--ink); background: rgba(14,14,14,0.04); }
+
+  .btn-delete {
+    flex: 1;
+    padding: 0.9rem 1rem;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 500;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .btn-delete::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 0; background: var(--accent-dark);
+    transition: width 0.3s cubic-bezier(0.22,1,0.36,1); z-index: 0;
+  }
+  .btn-delete:hover::before { width: 100%; }
+  .btn-delete span { position: relative; z-index: 1; }
+  .btn-delete:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(200,71,43,0.35); }
+  .btn-delete:active { transform: translateY(0); }
+
+  /* Back link top */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.8rem; color: var(--muted);
+    text-decoration: none; margin-bottom: 2rem;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: var(--accent); }
+</style>
+
+<div class="sm:ml-64 mt-16 md:mt-14">
+  <div class="delete-root">
+
+    <!-- Left image panel -->
+    <aside class="delete-panel-left">
+      <img src="https://cdn.dribbble.com/userupload/28302971/file/original-13047d68b80ce0ed9420d4ca9a82fcff.png?resize=1024x663&vertical=center" alt="Illustration">
+      <div class="delete-panel-overlay"></div>
+      <div class="delete-panel-content">
+        <div class="panel-accent-line"></div>
+        <div class="panel-warn-icon">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <p class="panel-quote-text">This action is permanent and cannot be undone. Please confirm carefully.</p>
+        <div class="panel-divider"></div>
+        <span class="panel-brand">Data Management &nbsp;·&nbsp; Gender</span>
+      </div>
+    </aside>
+
+    <!-- Right form panel -->
+    <main class="delete-panel-right">
+      <div class="delete-card">
+
+        <a href="/gender/list" class="back-link">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          Back to list
+        </a>
+
+        <div class="delete-wordmark">
+          <div class="delete-wordmark-dot"></div>
+          <span class="delete-wordmark-text">Data Management</span>
+        </div>
+
+        <h1 class="delete-title">Delete Gender.</h1>
+        <p class="delete-subtitle">You are about to permanently remove this entry</p>
+
+        <div class="delete-warning">
+          <span class="delete-warning-icon">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </span>
+          <span class="delete-warning-text">
+            This will permanently delete the gender entry. This action cannot be undone.
+          </span>
+        </div>
+
+        <form class="delete-form" action="/gender/delete/{{ gender.gender_id }}" method="post">
+          {% csrf_token %}
+
+          <div class="field-group">
+            <label class="field-label" for="gender">Gender Name</label>
+            <input
+              class="field-input"
+              type="text"
+              name="gender"
+              id="gender"
+              value="{{ gender.gender }}"
+              readonly
+            >
+          </div>
+
+          <div class="action-row">
+            <a href="/gender/list" class="btn-back">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+              </svg>
+              Cancel
+            </a>
+            <button type="submit" class="btn-delete">
+              <span>
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+                  <path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+                </svg>
+              </span>
+              <span>Delete Gender</span>
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+{% endblock 'content' %}

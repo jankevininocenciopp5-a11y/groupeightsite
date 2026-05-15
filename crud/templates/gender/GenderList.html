@@ -1,0 +1,391 @@
+{% extends 'layout/base.html' %}
+
+{% block 'title' %} Genders List {% endblock 'title' %}
+
+{% block 'content' %}
+{% include 'include/Sidebar.html' %}
+{% include 'include/ToastMessage.html' %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --ink: #0e0e0e;
+    --paper: #f5f1eb;
+    --accent: #c8472b;
+    --accent-dark: #a33520;
+    --muted: #9a9087;
+    --border: #d9d3c8;
+    --card-bg: #ffffff;
+  }
+
+  .list-root {
+    height: calc(100vh - 3.5rem);
+    overflow: hidden;
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(circle at 10% 90%, rgba(200,71,43,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 90% 10%, rgba(14,14,14,0.04) 0%, transparent 50%);
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 2.5rem;
+    gap: 1.5rem;
+  }
+
+  /* ── Page header row ── */
+  .list-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    gap: 1rem;
+    animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .list-header-left {}
+
+  .list-wordmark {
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 0.4rem;
+  }
+  .list-wordmark-dot {
+    width: 8px; height: 8px;
+    background: var(--accent); border-radius: 50%;
+  }
+  .list-wordmark-text {
+    font-size: 0.68rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--muted); font-weight: 500;
+  }
+  .list-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem; font-weight: 700;
+    color: var(--ink); line-height: 1.1;
+  }
+
+  .btn-add {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.65rem 1.2rem;
+    background: var(--ink); color: #fff;
+    border: none; border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 500; letter-spacing: 0.04em;
+    text-decoration: none;
+    position: relative; overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-add::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 0; background: var(--accent);
+    transition: width 0.3s cubic-bezier(0.22,1,0.36,1); z-index: 0;
+  }
+  .btn-add:hover::before { width: 100%; }
+  .btn-add span { position: relative; z-index: 1; }
+  .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,71,43,0.25); }
+  .btn-add:active { transform: translateY(0); }
+
+  /* ── Search bar ── */
+  .search-row {
+    display: flex; gap: 0.6rem;
+    flex-shrink: 0;
+    animation: fadeUp 0.55s 0.05s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 0.65rem 1rem;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem; color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-input::placeholder { color: #c5bdb4; }
+  .search-input:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(14,14,14,0.06);
+  }
+
+  .btn-search {
+    padding: 0.65rem 1.2rem;
+    background: var(--ink); color: #fff;
+    border: none; border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    display: flex; align-items: center; gap: 0.4rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .btn-search::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 0; background: var(--accent);
+    transition: width 0.3s cubic-bezier(0.22,1,0.36,1); z-index: 0;
+  }
+  .btn-search:hover::before { width: 100%; }
+  .btn-search span { position: relative; z-index: 1; }
+  .btn-search:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,71,43,0.22); }
+
+  .btn-clear {
+    padding: 0.65rem 1rem;
+    background: transparent; color: var(--muted);
+    border: 1.5px solid var(--border); border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 400;
+    text-decoration: none; white-space: nowrap;
+    display: flex; align-items: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-clear:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* ── Table wrapper ── */
+  .table-wrap {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    animation: fadeUp 0.6s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  /* Thin scrollbar */
+  .table-wrap::-webkit-scrollbar { width: 5px; height: 5px; }
+  .table-wrap::-webkit-scrollbar-track { background: transparent; }
+  .table-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+  table {
+    width: 100%; border-collapse: collapse;
+  }
+
+  thead {
+    position: sticky; top: 0; z-index: 1;
+  }
+
+  thead tr {
+    border-bottom: 1.5px solid var(--border);
+    background: var(--card-bg);
+  }
+
+  thead th {
+    padding: 0.85rem 1.4rem;
+    font-size: 0.68rem; font-weight: 500;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); text-align: left;
+  }
+
+  /* Accent left column marker */
+  thead th:first-child { border-left: 3px solid var(--accent); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #faf7f3; }
+
+  tbody td {
+    padding: 0.85rem 1.4rem;
+    font-size: 0.88rem; color: var(--ink);
+  }
+  tbody td:first-child { border-left: 3px solid transparent; transition: border-color 0.15s; }
+  tbody tr:hover td:first-child { border-left-color: var(--accent); }
+
+  /* Row index badge */
+  .row-index {
+    display: inline-block;
+    font-size: 0.68rem; color: var(--muted);
+    min-width: 1.4rem; text-align: right;
+    margin-right: 0.6rem;
+  }
+
+  /* Action buttons */
+  .action-group {
+    display: inline-flex; gap: 0.4rem;
+  }
+
+  .btn-edit, .btn-delete {
+    padding: 0.35rem 0.85rem;
+    border-radius: 4px;
+    font-size: 0.75rem; font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.15s, transform 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .btn-edit {
+    background: rgba(14,14,14,0.06);
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  .btn-edit:hover { background: var(--ink); color: #fff; }
+
+  .btn-delete {
+    background: rgba(200,71,43,0.08);
+    color: var(--accent);
+    border: 1px solid rgba(200,71,43,0.2);
+  }
+  .btn-delete:hover { background: var(--accent); color: #fff; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center; padding: 3rem 1rem;
+  }
+  .empty-state-icon { font-size: 2rem; margin-bottom: 0.75rem; opacity: 0.3; }
+  .empty-state-text { font-size: 0.88rem; color: var(--muted); }
+
+  /* ── Pagination ── */
+  .pagination {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.3rem; flex-shrink: 0;
+    animation: fadeUp 0.65s 0.15s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  .page-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2rem; height: 2rem;
+    border-radius: 4px;
+    font-size: 0.78rem; font-weight: 500;
+    text-decoration: none;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    background: var(--card-bg);
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .page-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .page-btn.active {
+    background: var(--ink); color: #fff; border-color: var(--ink);
+  }
+
+  .page-word {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0 0.7rem; height: 2rem;
+    border-radius: 4px;
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.04em;
+    text-decoration: none;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    background: var(--card-bg);
+    transition: border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .page-word:hover { border-color: var(--ink); color: var(--ink); }
+</style>
+
+<div class="sm:ml-64 mt-16 md:mt-14">
+  <div class="list-root">
+
+    <!-- Header -->
+    <div class="list-header">
+      <div class="list-header-left">
+        <div class="list-wordmark">
+          <div class="list-wordmark-dot"></div>
+          <span class="list-wordmark-text">Data Management</span>
+        </div>
+        <h1 class="list-title">Genders.</h1>
+      </div>
+      <a href="/gender/add" class="btn-add">
+        <span>
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </span>
+        <span>Add Gender</span>
+      </a>
+    </div>
+
+    <!-- Search -->
+    <form action="/gender/list" method="GET" class="search-row">
+      <input
+        type="text" name="search"
+        value="{{ search_query }}"
+        placeholder="Search genders…"
+        class="search-input"
+      >
+      <button type="submit" class="btn-search">
+        <span>
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </span>
+        <span>Search</span>
+      </button>
+      {% if search_query %}
+        <a href="/gender/list" class="btn-clear">Clear</a>
+      {% endif %}
+    </form>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Gender</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for gender in genders %}
+          <tr>
+            <td>
+              <span class="row-index">{{ forloop.counter }}.</span>
+              {{ gender.gender }}
+            </td>
+            <td>
+              <div class="action-group">
+                <a href="/gender/edit/{{ gender.gender_id }}" class="btn-edit">Edit</a>
+                <a href="/gender/delete/{{ gender.gender_id }}" class="btn-delete">Delete</a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2">
+              <div class="empty-state">
+                <div class="empty-state-icon">⊘</div>
+                <p class="empty-state-text">No genders found{% if search_query %} for "{{ search_query }}"{% endif %}.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav class="pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-word">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          Prev
+        </a>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-btn active">{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-btn">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-word">
+          Next
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </a>
+      {% endif %}
+    </nav>
+
+  </div>
+</div>
+
+{% endblock 'content' %}

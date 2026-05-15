@@ -1,0 +1,312 @@
+{% extends "layout/base.html" %}
+
+{% block 'title' %} Add Gender Page{% endblock 'title' %}
+
+{% block 'content' %}
+{% include 'include/Sidebar.html' %}
+{% include 'include/ToastMessage.html' %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --ink: #0e0e0e;
+    --paper: #f5f1eb;
+    --accent: #c8472b;
+    --accent-dark: #a33520;
+    --muted: #9a9087;
+    --border: #d9d3c8;
+    --card-bg: #ffffff;
+  }
+
+  .gender-root {
+    height: calc(100vh - 3.5rem);
+    overflow: hidden;
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(circle at 15% 85%, rgba(200,71,43,0.07) 0%, transparent 55%),
+      radial-gradient(circle at 85% 10%, rgba(14,14,14,0.05) 0%, transparent 50%);
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* Left decorative panel — mirrors login */
+  .gender-panel-left {
+    display: none;
+    width: 42%;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (min-width: 900px) {
+    .gender-panel-left { display: block; }
+  }
+
+  .gender-panel-left img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .gender-panel-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(14,14,14,0.55) 0%, rgba(14,14,14,0.2) 100%);
+  }
+
+  .gender-panel-content {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 3rem;
+  }
+
+  .panel-accent-line {
+    position: absolute; top: 0; left: 3rem;
+    width: 1px; height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--accent) 30%, var(--accent) 70%, transparent);
+    opacity: 0.4;
+  }
+
+  .panel-quote-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 7rem; line-height: 0.8;
+    color: var(--accent); opacity: 0.6;
+    display: block; margin-bottom: 1rem;
+  }
+
+  .panel-quote-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; line-height: 1.5;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 1.5rem;
+  }
+
+  .panel-divider {
+    width: 2.5rem; height: 2px;
+    background: var(--accent); margin-bottom: 1rem;
+  }
+
+  .panel-brand {
+    font-size: 0.75rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4);
+  }
+
+  /* Right panel — scrollable form area */
+  .gender-panel-right {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+  }
+
+  .gender-card {
+    width: 100%;
+    max-width: 420px;
+    animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Header */
+  .gender-wordmark {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 2rem;
+  }
+  .gender-wordmark-dot {
+    width: 10px; height: 10px;
+    background: var(--accent); border-radius: 50%;
+  }
+  .gender-wordmark-text {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .gender-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: 0.4rem;
+  }
+
+  .gender-subtitle {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 2rem;
+  }
+
+  /* Form */
+  .gender-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .field-label {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .field-input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  .field-input::placeholder { color: #c5bdb4; }
+
+  .field-input:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(14,14,14,0.06);
+  }
+
+  /* Submit button */
+  .btn-save {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-top: 0.4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-save::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 0;
+    background: var(--accent);
+    transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 0;
+  }
+
+  .btn-save:hover::before { width: 100%; }
+  .btn-save span { position: relative; z-index: 1; }
+
+  .btn-save:hover {
+    box-shadow: 0 8px 24px rgba(200,71,43,0.25);
+    transform: translateY(-1px);
+  }
+  .btn-save:active { transform: translateY(0); }
+
+  /* Back link */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: var(--accent); }
+</style>
+
+<div class="sm:ml-64 mt-16 md:mt-14">
+  <div class="gender-root">
+
+    <!-- Left image panel -->
+    <aside class="gender-panel-left">
+      <img src="https://cdn.dribbble.com/userupload/28302971/file/original-13047d68b80ce0ed9420d4ca9a82fcff.png?resize=1024x663&vertical=center" alt="Illustration">
+      <div class="gender-panel-overlay"></div>
+      <div class="gender-panel-content">
+        <div class="panel-accent-line"></div>
+        <span class="panel-quote-mark">"</span>
+        <p class="panel-quote-text">Define how your system understands identity, one entry at a time.</p>
+        <div class="panel-divider"></div>
+        <span class="panel-brand">Data Management &nbsp;·&nbsp; Gender</span>
+      </div>
+    </aside>
+
+    <!-- Right form panel -->
+    <main class="gender-panel-right">
+      <div class="gender-card">
+
+        <a href="/gender/list" class="back-link">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          Back
+        </a>
+
+        <div class="gender-wordmark">
+          <div class="gender-wordmark-dot"></div>
+          <span class="gender-wordmark-text">Data Management</span>
+        </div>
+
+        <h1 class="gender-title">Add Gender.</h1>
+        <p class="gender-subtitle">Define a new gender entry for the system</p>
+
+        <form class="gender-form" action="/gender/add" method="post">
+          {% csrf_token %}
+
+          <div class="field-group">
+            <label class="field-label" for="gender">Gender Name</label>
+            <input
+              class="field-input"
+              name="gender"
+              type="text"
+              id="gender"
+              placeholder="e.g. Male, Female, Non-binary…"
+              required
+            >
+          </div>
+
+          <button type="submit" class="btn-save">
+            <span>Save Gender</span>
+            <span>
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </span>
+          </button>
+
+        </form>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+{% endblock 'content' %}

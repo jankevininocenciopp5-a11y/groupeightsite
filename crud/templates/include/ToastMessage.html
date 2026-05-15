@@ -1,0 +1,103 @@
+{% load static %}
+
+<style>
+    /* Toast Animation: Smooth Scale & Fade */
+    @keyframes toastPopIn {
+        from { transform: translate(-50%, -20px); opacity: 0; }
+        to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    .toast-container {
+        position: fixed;
+        top: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 100%;
+        max-width: 400px;
+        pointer-events: none; /* Allows clicking elements behind the container */
+    }
+
+    .custom-toast {
+        pointer-events: auto; /* Re-enables clicking for the toast itself */
+        animation: toastPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        font-family: "DM Sans", -apple-system, sans-serif;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+        border: 1px solid #d9d3c8;
+        border-radius: 8px;
+        box-shadow: 0 20px 40px -10px rgba(14, 14, 14, 0.15);
+        padding: 1rem;
+    }
+
+    .toast-error { border-bottom: 3px solid #c8472b; }
+    .toast-success { border-bottom: 3px solid #2b5bc8; }
+
+    .toast-label {
+        font-size: 0.6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 2px;
+        display: block;
+    }
+</style>
+
+{% if messages %}
+    <div class="toast-container">
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <!-- Error Toast (Centered) -->
+                <div id="toast-danger-{{ forloop.counter }}" class="custom-toast toast-error flex items-center" role="alert">
+                    <div class="inline-flex items-center justify-center shrink-0 w-10 h-10 text-[#c8472b] bg-[#fcf4f2] rounded-full">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="ms-4 flex-1">
+                        <span class="toast-label text-[#c8472b]">Entry Denied</span>
+                        <div class="text-sm font-semibold text-[#0e0e0e]">{{ message }}</div>
+                    </div>
+                    <button type="button" class="ms-3 p-1 text-[#9a9087] hover:text-[#0e0e0e] transition-all" onclick="this.parentElement.remove()">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 14 14">
+                            <path d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                    </button>
+                </div>
+            {% else %}
+                <!-- Success Toast (Centered) -->
+                <div id="toast-success-{{ forloop.counter }}" class="custom-toast toast-success flex items-center" role="alert">
+                    <div class="inline-flex items-center justify-center shrink-0 w-10 h-10 text-[#2b5bc8] bg-[#f0f4ff] rounded-full">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="ms-4 flex-1">
+                        <span class="toast-label text-[#2b5bc8]">Update Verified</span>
+                        <div class="text-sm font-semibold text-[#0e0e0e]">{{ message }}</div>
+                    </div>
+                    <button type="button" class="ms-3 p-1 text-[#9a9087] hover:text-[#0e0e0e] transition-all" onclick="this.parentElement.remove()">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 14 14">
+                            <path d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}
+
+<script>
+    // Self-destruct sequence for clean UI
+    document.querySelectorAll('.custom-toast').forEach(toast => {
+        setTimeout(() => {
+            toast.style.transform = 'translate(-50%, -10px)';
+            toast.style.opacity = '0';
+            toast.style.transition = 'all 0.4s ease';
+            setTimeout(() => toast.remove(), 400);
+        }, 4500);
+    });
+</script>

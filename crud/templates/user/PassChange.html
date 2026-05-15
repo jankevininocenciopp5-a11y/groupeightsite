@@ -1,0 +1,318 @@
+{% extends 'layout/base.html' %}
+
+{% block 'title' %} Security Update {% endblock 'title' %}
+
+{% block 'content' %}
+{% include 'include/Sidebar.html' %}
+{% include 'include/ToastMessage.html' %}
+
+<style>
+  :root {
+    --ink: #0e0e0e;
+    --paper: #f5f1eb;
+    --accent: #2b5bc8; 
+    --accent-dark: #1e44a3;
+    --muted: #9a9087;
+    --border: #d9d3c8;
+    --card-bg: #ffffff;
+    
+    /* System Font Stacks (No CDN needed) */
+    --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+    --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  .edit-root {
+    height: calc(100vh - 3.5rem);
+    overflow: hidden;
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(circle at 15% 85%, rgba(43,91,200,0.07) 0%, transparent 55%),
+      radial-gradient(circle at 85% 10%, rgba(14,14,14,0.05) 0%, transparent 50%);
+    font-family: var(--font-sans);
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* ── Left panel (No-CDN Version) ── */
+  .edit-panel-left {
+    display: none;
+    width: 42%;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    background-color: #1a1a1a;
+  }
+  @media (min-width: 900px) { .edit-panel-left { display: block; } }
+
+  /* Geometric Pattern instead of CDN Image */
+  .panel-bg-pattern {
+    position: absolute; inset: 0;
+    opacity: 0.2;
+    background-image: radial-gradient(var(--accent) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .edit-panel-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(14,14,14,0.8) 0%, rgba(43,91,200,0.4) 100%);
+  }
+
+  .edit-panel-content {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 3rem;
+    z-index: 2;
+  }
+
+  .panel-accent-line {
+    position: absolute; top: 0; left: 3rem;
+    width: 1px; height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--accent) 30%, var(--accent) 70%, transparent);
+    opacity: 0.4;
+  }
+
+  .panel-icon {
+    width: 3rem; height: 3rem;
+    border-radius: 50%;
+    background: rgba(43,91,200,0.3);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.2rem;
+    color: #fff;
+  }
+
+  .panel-quote-text {
+    font-family: var(--font-serif);
+    font-size: 1.6rem; line-height: 1.4;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+  }
+
+  .panel-divider {
+    width: 2.5rem; height: 2px;
+    background: var(--accent); margin-bottom: 1rem;
+  }
+
+  .panel-brand {
+    font-size: 0.75rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5);
+  }
+
+  /* ── Right form panel ── */
+  .edit-panel-right {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+  }
+
+  .edit-card {
+    width: 100%;
+    max-width: 440px;
+    animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .edit-wordmark {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 2rem;
+  }
+  .edit-wordmark-dot {
+    width: 10px; height: 10px;
+    background: var(--accent); border-radius: 50%;
+  }
+  .edit-wordmark-text {
+    font-size: 0.7rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--muted); font-weight: 600;
+  }
+
+  .edit-title {
+    font-family: var(--font-serif);
+    font-size: 2.3rem; font-weight: 700;
+    color: var(--ink); line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+
+  .edit-subtitle {
+    font-size: 0.9rem; color: var(--muted);
+    font-weight: 400; margin-bottom: 2rem;
+  }
+
+  /* Form */
+  .edit-form { display: flex; flex-direction: column; gap: 1.3rem; }
+
+  .field-group { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .field-label {
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink);
+  }
+
+  .field-input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-sans);
+    font-size: 0.95rem; color: var(--ink);
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .field-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(43,91,200,0.1);
+  }
+
+  /* Action row */
+  .action-row {
+    display: flex; gap: 0.75rem; margin-top: 1rem;
+  }
+
+  .btn-back {
+    flex: 1;
+    padding: 0.9rem 1rem;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-sans);
+    font-size: 0.85rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    text-decoration: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .btn-back:hover { border-color: var(--ink); background: rgba(14,14,14,0.04); }
+
+  .btn-submit {
+    flex: 1.5;
+    padding: 0.9rem 1rem;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 6px;
+    font-family: var(--font-sans);
+    font-size: 0.85rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    transition: all 0.2s;
+  }
+  .btn-submit:hover { 
+    background: var(--accent-dark);
+    transform: translateY(-1px); 
+    box-shadow: 0 8px 20px rgba(43,91,200,0.3); 
+  }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.8rem; color: var(--muted);
+    text-decoration: none; margin-bottom: 2rem;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: var(--accent); }
+</style>
+
+<div class="sm:ml-64 mt-16 md:mt-14">
+  <div class="edit-root">
+
+    <!-- Left side panel -->
+    <aside class="edit-panel-left">
+      <div class="panel-bg-pattern"></div>
+      <div class="edit-panel-overlay"></div>
+      <div class="edit-panel-content">
+        <div class="panel-accent-line"></div>
+        <div class="panel-icon">
+          <!-- Shield Icon SVG -->
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <p class="panel-quote-text">A secure credential is the first line of defense for your digital identity.</p>
+        <div class="panel-divider"></div>
+        <span class="panel-brand">Security Management &nbsp;·&nbsp; {{ user.username }}</span>
+      </div>
+    </aside>
+
+    <!-- Right side panel -->
+    <main class="edit-panel-right">
+      <div class="edit-card">
+
+        <a href="/user/list" class="back-link">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          Back to Directory
+        </a>
+
+        <div class="edit-wordmark">
+          <div class="edit-wordmark-dot"></div>
+          <span class="edit-wordmark-text">Data & Security</span>
+        </div>
+
+        <h1 class="edit-title">Change Password.</h1>
+        <p class="edit-subtitle">Updating access for <strong>{{ user.full_name }}</strong></p>
+
+        <form class="edit-form" action="/user/passwordchange/{{ user.user_id }}" method="post">
+          {% csrf_token %}
+
+          <div class="field-group">
+            <label class="field-label" for="current_password">Current Password</label>
+            <input 
+              class="field-input" 
+              type="password" 
+              name="current_password" 
+              id="current_password" 
+              placeholder="Confirm current password" 
+              required
+            >
+          </div>
+
+          <div style="margin: 0.5rem 0; border-bottom: 1px solid var(--border); opacity: 0.4;"></div>
+
+          <div class="field-group">
+            <label class="field-label" for="password">New Password</label>
+            <input 
+              class="field-input" 
+              type="password" 
+              name="password" 
+              id="password" 
+              placeholder="Create a strong password" 
+              required
+            >
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="confirm_password">Confirm New Password</label>
+            <input 
+              class="field-input" 
+              type="password" 
+              name="confirm_password" 
+              id="confirm_password" 
+              placeholder="Verify new password" 
+              required
+            >
+          </div>
+
+          <div class="action-row">
+            <a href="/user/list" class="btn-back">Cancel</a>
+            <button type="submit" class="btn-submit">
+              Update Password
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+{% endblock 'content' %}
