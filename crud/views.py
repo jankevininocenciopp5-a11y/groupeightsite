@@ -173,6 +173,7 @@ def add_user(request):
             username = request.POST.get('username')
             password = request.POST.get('password')
             confirmPassword = request.POST.get('confirm_password')
+            image = request.FILES.get('image')
 
             
             if password != confirmPassword:
@@ -212,6 +213,7 @@ def add_user(request):
                 full_name=fullname,
                 gender=Genders.objects.get(pk=gender),
                 birth_date=birthDate,
+                image=image,
                 address=address,
                 contact_number=contactNumber,
                 email=email,
@@ -245,6 +247,7 @@ def edit_user(request, userId):
             contactNumber = request.POST.get('contact_number')
             email = request.POST.get('email')
             username = request.POST.get('username')
+            image = request.FILES.get('image')
             
             if not gender:
                 messages.error(request, 'Please select a gender')
@@ -267,6 +270,8 @@ def edit_user(request, userId):
             userObj.contact_number = contactNumber
             userObj.email = email
             userObj.username = username
+            if image:
+                userObj.image = image
             userObj.save()
             
             messages.success(request, 'User updated successfully!')

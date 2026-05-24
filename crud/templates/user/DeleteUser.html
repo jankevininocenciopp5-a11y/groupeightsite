@@ -270,7 +270,14 @@
         </div>
 
         <h1 class="delete-title">Delete User.</h1>
-        <p class="delete-subtitle">Confirm removal of <strong>{{ user.full_name }}</strong></p>
+        <div class="flex items-center gap-4 mb-4">
+          {% if user.image %}
+            <img src="{{ user.image.url }}" alt="Profile" style="width: 60px; height: 60px; border-radius: 50%;
+          object-fit: cover; border: 2px solid var(--accent);">
+          {% endif %}
+          <p class="delete-subtitle" style="margin-bottom: 0;">Confirm removal of <strong>{{ user.full_name
+          }}</strong></p>
+        </div>
 
         <div class="delete-warning">
           <span class="delete-warning-icon">

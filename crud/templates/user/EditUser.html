@@ -150,13 +150,24 @@
 
     <!-- Form Card -->
     <div class="form-card">
-      <form action="/user/edit/{{ user.user_id }}" method="post">
+      <form action="/user/edit/{{ user.user_id }}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           
           <!-- Column 1 -->
           <div class="space-y-5">
+            <div class="flex items-center gap-4 mb-4">
+              {% if user.image %}
+                 <img src="{{ user.image.url }}" alt="Profile" style="width: 60px; height: 60px;
+          border-radius: 50%; object-fit: cover; border: 2px solid var(--border);">
+              {% endif %}
+                <div class="flex-1">
+                  <label for="image" class="form-label">Update Profile Image</label>
+                  <input type="file" class="form-input" name="image" id="image" accept="image/*" />
+                </div>
+            </div>
+
             <div>
               <label for="full_name" class="form-label">Full Name</label>
               <input type="text" class="form-input" name="full_name" id="full_name" value="{{ user.full_name }}" required />
