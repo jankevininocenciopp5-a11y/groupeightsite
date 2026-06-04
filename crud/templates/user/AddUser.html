@@ -192,11 +192,16 @@
           <p class="add-subtitle">Complete the profile information to create a new account</p>
         </header>
 
-        <form action="/user/add" method="post" class="form-grid">
+        <form action="/user/add" method="post" class="form-grid" enctype="multipart/form-data">
           {% csrf_token %}
 
           <!-- Personal Information -->
           <div class="section-header">Personal Details</div>
+
+          <div class="field-group" style="grid-column: 1 / -1;">
+            <label class="field-label" for="image">Profile Image</label>
+            <input type="file" name="image" id="image" class="field-input" accept="image/*">
+          </div>
           
           <div class="field-group">
             <label class="field-label" for="full_name">Full Name</label>
